@@ -1,7 +1,7 @@
 const { program } = require("commander");
 const fs = require("fs/promises");
 const chalk = require("chalk");
-const QUOTE_FILE = "quotes.txt";
+const QUOTE_FILE = "./quotes.txt";
 
 program
   .name("quotes")
@@ -19,9 +19,9 @@ program
       var randomQuote = Math.floor(Math.random() * quotes.length)
       var [quote, author] = quotes[randomQuote].split('|')
       // You may style the text with chalk as you wish
-      const displayQuote = chalk.cyan(quote, chalk.green.bold("|" + author))
+      const displayQuote = [chalk.blue(quote), chalk.cyan.bold(author)]
       // console log the quote and author
-      console.log(displayQuote)
+      console.log(displayQuote.join(chalk.cyan.bold('|')))
     } catch(err) {
       console.log(err)
     }
@@ -32,7 +32,18 @@ program
   .description("adds a quote to the quote file")
   .action(async (quote, author) => {
     try {
-      // TODO: Add the quote and author to the quotes.txt file  
+      // TODO: Add the quote and author to the quotes.txt file
+      var fileContent = await(fs.readFile(QUOTE_FILE, "UTF-8"))
+      console.log(typeof(fileContent))
+      fileContent = fileContent.slice(0, fileContent.length -1)
+      if (author === null || author === undefined) {
+        author = 'Anonymous'
+      }
+      var newQuote = [quote, author]
+      const addQuote = await(fs.writeFile(QUOTE_FILE, fileContent.concat(newQuote.join('|').concat("\n\n"))))
+
+      console.log(chalk.green.bold('Quote was successfully added!'))
+
       // If no author is provided,
       // save the author as "Anonymous".
       // After the quote/author is saved,
